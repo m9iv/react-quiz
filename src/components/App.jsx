@@ -10,6 +10,7 @@ import Error from './Error'
 
 const initialState = {
   questions: [],
+  index: 0,
 
   // 'loading', 'error', 'ready', 'active', 'finished'
   status: 'loading',
@@ -39,7 +40,10 @@ function reducer(state, action) {
 }
 
 export default function App() {
-  const [{ questions, status }, dispatch] = useReducer(reducer, initialState)
+  const [{ questions, status, index }, dispatch] = useReducer(
+    reducer,
+    initialState
+  )
 
   const numQuestions = questions.length
 
@@ -60,7 +64,7 @@ export default function App() {
         {status === 'ready' && (
           <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
         )}
-        {status === 'active' && <Question />}
+        {status === 'active' && <Question question={questions[index]} />}
       </Main>
     </div>
   )
