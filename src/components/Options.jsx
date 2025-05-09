@@ -1,8 +1,22 @@
-function Options({ question }) {
+function Options({ answer, question, dispatch }) {
+  const hasAnswered = answer !== null
+
   return (
     <div className="options">
-      {question.options.map((option) => (
-        <button className="btn btn-option" key={crypto.randomUUID()}>
+      {question.options.map((option, index) => (
+        <button
+          key={crypto.randomUUID()}
+          className={`btn btn-option ${index === answer ? 'answer' : ''}
+          ${
+            hasAnswered
+              ? index === question.correctOption
+                ? 'correct'
+                : 'wrong'
+              : ''
+          }
+          `}
+          onClick={() => dispatch({ type: 'newAnswer', payload: index })}
+          disabled={hasAnswered}>
           {option}
         </button>
       ))}
