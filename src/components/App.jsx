@@ -3,6 +3,7 @@ import { useEffect, useReducer } from 'react'
 import Header from './Header'
 import Main from './Main'
 import StartScreen from './StartScreen'
+import FinishScreen from './FinishScreen'
 import Question from './Question'
 import NextButton from './NextButton'
 import Progress from './Progress'
@@ -15,6 +16,7 @@ const initialState = {
   index: 0,
   answer: null,
   points: 0,
+  highscore: 0,
 
   // 'loading', 'error', 'ready', 'active', 'finished'
   status: 'loading',
@@ -38,6 +40,14 @@ function reducer(state, action) {
     case 'start':
       return { ...state, status: 'active' }
 
+    case 'finish':
+      return {
+        ...state,
+        status: 'finished',
+        highscore:
+          state.points > state.highscore ? state.points : state.highscore,
+      }
+
     case 'newAnswer': {
       const question = state.questions.at(state.index)
 
@@ -60,13 +70,11 @@ function reducer(state, action) {
 }
 
 export default function App() {
-  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
-    reducer,
-    initialState
-  )
+  const [{ questions, status, index, answer, points, highscore }, dispatch] =
+    useReducer(reducer, initialState)
 
   const numQuestions = questions.length
-  const maxPossiblePOints = questions.reduce(
+  const maxPossiblePoints = questions.reduce(
     (prev, curr) => prev + curr.points,
     0
   )
@@ -94,7 +102,7 @@ export default function App() {
               index={index}
               numQuestions={numQuestions}
               points={points}
-              maxPossiblePOints={maxPossiblePOints}
+              maxPossiblePoints={maxPossiblePoints}
               answer={answer}
             />
 
@@ -104,8 +112,21 @@ export default function App() {
               answer={answer}
             />
 
-            <NextButton dispatch={dispatch} answer={answer} />
+            <NextButton
+              dispatch={dispatch}
+              answer={answer}
+              index={index}
+              numQuestions={numQuestions}
+            />
           </>
+        )}
+
+        {status === 'finished' && (
+          <FinishScreen
+            points={points}
+            maxPossiblePoints={maxPossiblePoints}
+            highscore={highscore}
+          />
         )}
       </Main>
     </div>
