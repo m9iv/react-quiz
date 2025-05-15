@@ -10,6 +10,9 @@ import Progress from './Progress'
 
 import Loader from './Loader'
 import Error from './Error'
+import Timer from './Timer'
+
+const SECS_PER_QUESTION = 30
 
 const initialState = {
   questions: [],
@@ -17,6 +20,7 @@ const initialState = {
   answer: null,
   points: 0,
   highscore: 0,
+  secondsRemaining: null,
 
   // 'loading', 'error', 'ready', 'active', 'finished'
   status: 'loading',
@@ -38,7 +42,18 @@ function reducer(state, action) {
       }
 
     case 'start':
-      return { ...state, status: 'active' }
+      return {
+        ...state,
+        status: 'active',
+        secondsRemaining: state.questions.length * SECS_PER_QUESTION,
+      }
+
+    case 'tick':
+      return {
+        ...state,
+        secondsRemaining: state.secondsRemaining - 1,
+        status: state.secondsRemaining === 0 ? 'finished' : state.status,
+      }
 
     case 'finish':
       return {
@@ -73,8 +88,10 @@ function reducer(state, action) {
 }
 
 export default function App() {
-  const [{ questions, status, index, answer, points, highscore }, dispatch] =
-    useReducer(reducer, initialState)
+  const [
+    { questions, status, index, answer, points, highscore, secondsRemaining },
+    dispatch,
+  ] = useReducer(reducer, initialState)
 
   const numQuestions = questions.length
   const maxPossiblePoints = questions.reduce(
@@ -115,12 +132,16 @@ export default function App() {
               answer={answer}
             />
 
-            <NextButton
-              dispatch={dispatch}
-              answer={answer}
-              index={index}
-              numQuestions={numQuestions}
-            />
+            <footer>
+              <Timer secondsRemaining={secondsRemaining} dispatch={dispatch} />
+
+              <NextButton
+                dispatch={dispatch}
+                answer={answer}
+                index={index}
+                numQuestions={numQuestions}
+              />
+            </footer>
           </>
         )}
 
